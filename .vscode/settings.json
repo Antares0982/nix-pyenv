@@ -1,5 +1,5 @@
 {
-    "python.analysis.stubPath": ".extra-symlink-search-path/site-packages",
+    "python.analysis.stubPath": ".extra-stub-path",
     "terminal.integrated.profiles.linux": {
         "nix-shell": {
             "path": "/run/current-system/sw/bin/nix-shell",
