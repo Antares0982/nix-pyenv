@@ -32,5 +32,6 @@ pkgs.mkShell {
             rm -f "$file"
         fi
     done
+    ensure_symlink ${extra_search_directory}/python ${pyenv}/bin/python
   '';
 }
