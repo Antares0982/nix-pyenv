@@ -1,4 +1,4 @@
-.extra-stub-path/
+.nix-pyenv/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
