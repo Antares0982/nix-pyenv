@@ -13,7 +13,7 @@ pkgs.mkShell {
     pyenv
   ];
   shellHook = ''
-    cd ${./.}
+    cd ${builtins.toString ./.}
     if [[ ! -d ${nix_pyenv_directory} ]]; then mkdir ${nix_pyenv_directory}; fi
     ensure_symlink() {
         local link_path="$1"
