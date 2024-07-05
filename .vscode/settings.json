@@ -1,5 +1,5 @@
 {
-    "python.analysis.stubPath": ".nix-pyenv",
+    "python.analysis.stubPath": ".nix-pyenv/lib",
     "terminal.integrated.profiles.linux": {
         "nix-shell": {
             "path": "/run/current-system/sw/bin/nix-shell",

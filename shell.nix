@@ -14,7 +14,11 @@ pkgs.mkShell {
   ];
   shellHook = ''
     cd ${builtins.toString ./.}
+
     if [[ ! -d ${nix_pyenv_directory} ]]; then mkdir ${nix_pyenv_directory}; fi
+    if [[ ! -d ${nix_pyenv_directory}/lib ]]; then mkdir ${nix_pyenv_directory}/lib; fi
+    if [[ ! -d ${nix_pyenv_directory}/bin ]]; then mkdir ${nix_pyenv_directory}/bin; fi
+
     ensure_symlink() {
         local link_path="$1"
         local target_path="$2"
@@ -26,13 +30,14 @@ pkgs.mkShell {
     }
 
     for file in ${pyenv}/${using_python.sitePackages}/*; do
-        ensure_symlink ${nix_pyenv_directory}/$(basename $file) $file
+        ensure_symlink ${nix_pyenv_directory}/lib/$(basename $file) $file
     done
-    for file in ${nix_pyenv_directory}/*; do
+    for file in ${nix_pyenv_directory}/lib/*; do
         if [[ -L "$file" ]] && [[ "$(dirname $(readlink "$file"))" != "${pyenv}/${using_python.sitePackages}" ]]; then
             rm -f "$file"
         fi
     done
-    ensure_symlink ${nix_pyenv_directory}/python ${pyenv}/bin/python
+    ensure_symlink ${nix_pyenv_directory}/bin/python ${pyenv}/bin/python
+    export PATH=${nix_pyenv_directory}/bin:$PATH
   '';
 }
