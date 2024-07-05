@@ -39,7 +39,7 @@ pkgs.mkShell {
             fi
         else
             # the typing_extensions.py will make the vscode type checker not working!
-            if [[ $file == *.so ]] || ([[ $file == *.py ]] && [[ $file != typing_extensions.py ]]); then
+            if [[ $basefile == *.so ]] || ([[ $basefile == *.py ]] && [[ $basefile != typing_extensions.py ]]); then
                 ensure_symlink ${nix_pyenv_directory}/lib/$basefile $file
             fi
         fi
