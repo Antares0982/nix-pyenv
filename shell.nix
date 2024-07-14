@@ -56,5 +56,7 @@ pkgs.mkShell {
     # add python executable to the bin directory
     ensure_symlink ${nix_pyenv_directory}/bin/python ${pyenv}/bin/python
     export PATH=${nix_pyenv_directory}/bin:$PATH
+
+    nix-build shell.nix -A inputDerivation -o ${nix_pyenv_directory}/.nix-shell-inputs
   '';
 }
