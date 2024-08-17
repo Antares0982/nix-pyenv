@@ -1,5 +1,5 @@
+{pkgs ? import <nixpkgs> { }}:
 let
-  pkgs = import <nixpkgs> { };
   # define version
   using_python = pkgs.python312;
   # import required python packages
@@ -13,7 +13,12 @@ pkgs.mkShell {
     pyenv
   ];
   shellHook = ''
-    cd ${builtins.toString ./.}
+    _SOURCE_ROOT=$(readlink -f ${builtins.toString ./.})
+    if [[ $_SOURCE_ROOT == /nix/store* ]]; then
+        # maybe in a flake environment
+        _SOURCE_ROOT=$(readlink -f .)
+    fi
+    cd $_SOURCE_ROOT
 
     # ensure the nix-pyenv directory exists
     if [[ ! -d ${nix_pyenv_directory} ]]; then mkdir ${nix_pyenv_directory}; fi
