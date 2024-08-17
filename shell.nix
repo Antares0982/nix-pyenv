@@ -40,12 +40,12 @@ pkgs.mkShell {
         basefile=$(basename $file)
         if [ -d "$file" ]; then
             if [[ "$basefile" != *dist-info && "$basefile" != __pycache__ ]]; then
-                ensure_symlink ${nix_pyenv_directory}/lib/$basefile $file
+                ensure_symlink "${nix_pyenv_directory}/lib/$basefile" $file
             fi
         else
             # the typing_extensions.py will make the vscode type checker not working!
             if [[ $basefile == *.so ]] || ([[ $basefile == *.py ]] && [[ $basefile != typing_extensions.py ]]); then
-                ensure_symlink ${nix_pyenv_directory}/lib/$basefile $file
+                ensure_symlink "${nix_pyenv_directory}/lib/$basefile" $file
             fi
         fi
     done
@@ -59,9 +59,16 @@ pkgs.mkShell {
     rm ${nix_pyenv_directory}/lib/typing_extensions.py > /dev/null 2>&1
 
     # add python executable to the bin directory
-    ensure_symlink ${nix_pyenv_directory}/bin/python ${pyenv}/bin/python
+    ensure_symlink "${nix_pyenv_directory}/bin/python" ${pyenv}/bin/python
     export PATH=${nix_pyenv_directory}/bin:$PATH
 
-    nix-build shell.nix -A inputDerivation -o ${nix_pyenv_directory}/.nix-shell-inputs
+    # prevent gc
+    if command -v nix-build > /dev/null 2>&1; then
+        TEMP_NIX_BUILD_COMMAND=nix-build
+    else
+        TEMP_NIX_BUILD_COMMAND=/run/current-system/sw/bin/nix-build
+    fi
+    $TEMP_NIX_BUILD_COMMAND shell.nix -A inputDerivation -o ${nix_pyenv_directory}/.nix-shell-inputs
+    unset TEMP_NIX_BUILD_COMMAND
   '';
 }
