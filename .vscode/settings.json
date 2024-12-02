@@ -4,7 +4,12 @@
         "nix-shell": {
             "path": "/run/current-system/sw/bin/nix-shell",
             "icon": "terminal-bash"
+        },
+        "nix-dev": {
+            "path": "/run/current-system/sw/bin/nix",
+            "args": ["develop", "-c", "nix-zshell"],
+            "icon": "terminal-bash"
         }
     },
-    "terminal.integrated.defaultProfile.linux": "nix-shell"
+    "terminal.integrated.defaultProfile.linux": "nix-dev"
 }
