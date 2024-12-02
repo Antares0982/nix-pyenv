@@ -1,7 +1,7 @@
 {pkgs ? import <nixpkgs> { }}:
 let
   # define version
-  using_python = pkgs.python312;
+  using_python = pkgs.python313;
   # import required python packages
   required_python_packages = import ./py_requirements.nix pkgs;
   # define the nix-pyenv directory
@@ -13,12 +13,9 @@ pkgs.mkShell {
     pyenv
   ];
   shellHook = ''
-    _SOURCE_ROOT=$(readlink -f ${builtins.toString ./.})
-    if [[ $_SOURCE_ROOT == /nix/store* ]]; then
-        # maybe in a flake environment
-        _SOURCE_ROOT=$(readlink -f .)
+    if [[ $name == nix-shell ]]; then
+        cd ${builtins.toString ./.}
     fi
-    cd $_SOURCE_ROOT
 
     # ensure the nix-pyenv directory exists
     if [[ ! -d ${nix_pyenv_directory} ]]; then mkdir ${nix_pyenv_directory}; fi
@@ -61,14 +58,5 @@ pkgs.mkShell {
     # add python executable to the bin directory
     ensure_symlink "${nix_pyenv_directory}/bin/python" ${pyenv}/bin/python
     export PATH=${nix_pyenv_directory}/bin:$PATH
-
-    # prevent gc
-    if command -v nix-build > /dev/null 2>&1; then
-        TEMP_NIX_BUILD_COMMAND=nix-build
-    else
-        TEMP_NIX_BUILD_COMMAND=/run/current-system/sw/bin/nix-build
-    fi
-    $TEMP_NIX_BUILD_COMMAND shell.nix -A inputDerivation -o ${nix_pyenv_directory}/.nix-shell-inputs
-    unset TEMP_NIX_BUILD_COMMAND
   '';
 }
