@@ -3,6 +3,7 @@
   pkgs ? import <nixpkgs> { },
   persist ? false,
   mkShell,
+  callPackage,
 }:
 let
   optionalAttrs = lib.attrsets.optionalAttrs;
@@ -11,7 +12,7 @@ let
   # define version
   usingPython = pkgs.python313;
   # import required python packages
-  requiredPythonPackages = pkgs.callPackage ./py_requirements.nix { };
+  requiredPythonPackages = callPackage ./py_requirements.nix { };
   # create python environment
   pyenv = usingPython.withPackages requiredPythonPackages;
   #
@@ -29,13 +30,13 @@ let
       packages = [ pyenv ];
     }
     // (optionalAttrs (!persist) {
-      shellHook = pkgs.callPackage ./shellhook.nix callShellHookParam;
+      shellHook = callPackage ./shellhook.nix callShellHookParam;
     })
   );
 in
 internalShell.overrideAttrs (
   optionalAttrs persist {
-    shellHook = pkgs.callPackage ./shellhook.nix (
+    shellHook = callPackage ./shellhook.nix (
       callShellHookParam
       // {
         inherit (internalShell) inputDerivation;
