@@ -1,62 +1,45 @@
-{pkgs ? import <nixpkgs> { }}:
+{
+  lib,
+  pkgs ? import <nixpkgs> { },
+  persist ? false,
+  mkShell,
+}:
 let
-  # define version
-  using_python = pkgs.python313;
-  # import required python packages
-  required_python_packages = import ./py_requirements.nix pkgs;
+  optionalAttrs = lib.attrsets.optionalAttrs;
   # define the nix-pyenv directory
-  nix_pyenv_directory = ".nix-pyenv";
-  pyenv = using_python.withPackages required_python_packages;
-in
-pkgs.mkShell {
-  packages = [
-    pyenv
-  ];
-  shellHook = ''
-    if [[ $name == nix-shell ]]; then
-        cd ${builtins.toString ./.}
-    fi
-
-    # ensure the nix-pyenv directory exists
-    if [[ ! -d ${nix_pyenv_directory} ]]; then mkdir ${nix_pyenv_directory}; fi
-    if [[ ! -d ${nix_pyenv_directory}/lib ]]; then mkdir ${nix_pyenv_directory}/lib; fi
-    if [[ ! -d ${nix_pyenv_directory}/bin ]]; then mkdir ${nix_pyenv_directory}/bin; fi
-
-    ensure_symlink() {
-        local link_path="$1"
-        local target_path="$2"
-        if [[ -L "$link_path" ]] && [[ "$(readlink "$link_path")" = "$target_path" ]]; then
-            return 0
-        fi
-        rm -f "$link_path" > /dev/null 2>&1
-        ln -s "$target_path" "$link_path"
+  nix-pyenv-directory = ".nix-pyenv";
+  # define version
+  usingPython = pkgs.python313;
+  # import required python packages
+  requiredPythonPackages = pkgs.callPackage ./py_requirements.nix { };
+  # create python environment
+  pyenv = usingPython.withPackages requiredPythonPackages;
+  #
+  callShellHookParam = {
+    inherit
+      nix-pyenv-directory
+      pyenv
+      usingPython
+      persist
+      pkgs
+      ;
+  };
+  internalShell = mkShell (
+    {
+      packages = [ pyenv ];
     }
-
-    # creating python library symlinks
-    for file in ${pyenv}/${using_python.sitePackages}/*; do
-        basefile=$(basename $file)
-        if [ -d "$file" ]; then
-            if [[ "$basefile" != *dist-info && "$basefile" != __pycache__ ]]; then
-                ensure_symlink "${nix_pyenv_directory}/lib/$basefile" $file
-            fi
-        else
-            # the typing_extensions.py will make the vscode type checker not working!
-            if [[ $basefile == *.so ]] || ([[ $basefile == *.py ]] && [[ $basefile != typing_extensions.py ]]); then
-                ensure_symlink "${nix_pyenv_directory}/lib/$basefile" $file
-            fi
-        fi
-    done
-    for file in ${nix_pyenv_directory}/lib/*; do
-        if [[ -L "$file" ]] && [[ "$(dirname $(readlink "$file"))" != "${pyenv}/${using_python.sitePackages}" ]]; then
-            rm -f "$file"
-        fi
-    done
-
-    # ensure the typing_extensions.py is not in the lib directory
-    rm ${nix_pyenv_directory}/lib/typing_extensions.py > /dev/null 2>&1
-
-    # add python executable to the bin directory
-    ensure_symlink "${nix_pyenv_directory}/bin/python" ${pyenv}/bin/python
-    export PATH=${nix_pyenv_directory}/bin:$PATH
-  '';
-}
+    // (optionalAttrs (!persist) {
+      shellHook = pkgs.callPackage ./shellhook.nix callShellHookParam;
+    })
+  );
+in
+internalShell.overrideAttrs (
+  optionalAttrs persist {
+    shellHook = pkgs.callPackage ./shellhook.nix (
+      callShellHookParam
+      // {
+        inherit (internalShell) inputDerivation;
+      }
+    );
+  }
+)

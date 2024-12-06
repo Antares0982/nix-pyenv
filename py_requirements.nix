@@ -1,4 +1,4 @@
-pkgs: pypkgs: with pypkgs;
-[
+{ pkgs, ... }:
+pypkgs: with pypkgs; [
   # add packages here
 ]
