@@ -1,9 +1,9 @@
 {
-  lib,
   pkgs ? import <nixpkgs> { },
+  lib ? pkgs.lib,
   persist ? false,
-  mkShell,
-  callPackage,
+  mkShell ? pkgs.mkShell,
+  callPackage ? pkgs.callPackage,
 }:
 let
   optionalAttrs = lib.attrsets.optionalAttrs;
