@@ -7,7 +7,7 @@
         },
         "nix-dev": {
             "path": "/run/current-system/sw/bin/nix",
-            "args": ["develop", "-c", "nix-zshell"],
+            "args": ["develop", "-c", "zsh"], // requires zsh installed
             "icon": "terminal-bash"
         }
     },

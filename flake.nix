@@ -28,7 +28,7 @@
     in
     {
       devShells = forAllSystems (pkgs: rec {
-        default = pkgs.callPackage ./shell.nix { persist = true; };
+        default = pkgs.callPackage ./shell.nix { };
       });
     };
 }
