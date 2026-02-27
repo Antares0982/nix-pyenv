@@ -27,11 +27,11 @@ let
     packages = [ pyenv ];
   });
 in
-internalShell.overrideAttrs ({
+internalShell.overrideAttrs {
   shellHook = callPackage ./shellhook.nix (
     callShellHookParam
     // {
       inherit (internalShell) inputDerivation;
     }
   );
-})
+}
