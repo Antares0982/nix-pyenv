@@ -12,6 +12,11 @@ Install `direnv` (optional)
 * Enable `direnv` for your workspace (using `direnv allow .`) (optional)
 * run `nix-shell` to generate the symlinks
 
+The shell hook registers two gc roots: `.nix-pyenv` (the environment) and
+`.nix-pyenv-nixpkgs` (the nixpkgs source), so `nix-collect-garbage` never forces
+a re-download of nixpkgs. Both are refreshed on every shell entry, so an old
+nixpkgs becomes collectable again after you update the lock.
+
 #### VSCode
 
 * Enable [direnv](https://github.com/direnv/direnv-vscode) plugin (optional)
